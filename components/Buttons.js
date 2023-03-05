@@ -1,5 +1,4 @@
-import { StyleSheet, Text, Button, Pressable } from 'react-native';
-import { View } from 'react-native-web';
+import { StyleSheet, Text, Button, Pressable, View } from 'react-native';
 
 export const Buttons = ({ navigation, route }) => {
   const changeScreen = () => {
