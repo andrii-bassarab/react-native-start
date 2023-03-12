@@ -1,25 +1,24 @@
-import React, {useState} from 'react';
-import {Button, StyleSheet, Text, View} from 'react-native';
+import React, { useState } from 'react';
+import { Button, StyleSheet, Text, View, TouchableOpacity, FlatList } from 'react-native';
 
 const Setting = () => {
-  const [data, setData] = useState('React');
+  const data = [
+    { id: 1, name: 'Item 1', description: 'Description of Item 1' },
+    { id: 2, name: 'Item 2', description: 'Description of Item 2' },
+    { id: 3, name: 'Item 3', description: 'Description of Item 3' },
+  ];
 
   return (
     <View style={styles.container}>
-      <Text>Stored value:</Text>
-      <Text style={styles.value}>{data}</Text>
-      <Button
-        onPress={() => {
-          setData('React');
-        }}
-        title="Store 'React'"
-      />
-      <Button
-        onPress={() => {
-          setData('Native');
-        }}
-        title="Store 'Native'"
-      />
+      <FlatList data={data} renderItem={({ item }) => (
+        <TouchableOpacity
+          onPress={() => {
+            navigation.navigate('Detail', { item });
+          }}
+        >
+            <Text>{item.name}</Text>
+        </TouchableOpacity>
+      )} />
     </View>
   );
 };

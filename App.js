@@ -1,6 +1,7 @@
-import * as React from 'react';
-import { View, Text, Button, SafeAreaView } from 'react-native';
+import React from 'react';
+import { View, FlatList, TouchableOpacity, Text, Button } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import {
   createDrawerNavigator,
   DrawerContentScrollView,
@@ -8,14 +9,13 @@ import {
   DrawerItem,
 } from '@react-navigation/drawer';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import {Buttons} from './components/Buttons';
-import {TodoList} from './components/TodoList';
-import Setting from './components/Setting';
-import MainStack from './navigate';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { Buttons } from './components/Buttons';
+import { TodoList } from './components/TodoList';
+import { Chat } from './components/Chat';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
+const Drawer = createDrawerNavigator();
 
 function Feed({ navigation }) {
   return (
@@ -25,7 +25,7 @@ function Feed({ navigation }) {
       <Button title="Toggle drawer" onPress={() => navigation.toggleDrawer()} />
     </View>
   );
-}
+};
 
 function Notifications() {
   return (
@@ -33,25 +33,7 @@ function Notifications() {
       <Text>Notifications Screen</Text>
     </View>
   );
-}
-
-function CustomDrawerContent(props) {
-  return (
-    <DrawerContentScrollView {...props}>
-      <DrawerItemList {...props} />
-      <DrawerItem
-        label="Close drawer"
-        onPress={() => props.navigation.closeDrawer()}
-      />
-      <DrawerItem
-        label="Toggle drawer"
-        onPress={() => props.navigation.toggleDrawer()}
-      />
-    </DrawerContentScrollView>
-  );
-}
-
-const Drawer = createDrawerNavigator();
+};
 
 function MyDrawer() {
   return (
@@ -67,116 +49,86 @@ function MyDrawer() {
         },
         // headerShown: false,
       }}
-      // drawerContent={(props) => <CustomDrawerContent {...props} />}
+    // drawerContent={(props) => <CustomDrawerContent {...props} />}
     >
       <Drawer.Screen name="Feed" component={Feed} />
-      <Drawer.Screen name="Notifications" options={{ drawerLabel: 'notif'}} component={Notifications} />
+      <Drawer.Screen name="Notifications" options={{ drawerLabel: 'notif' }} component={Notifications} />
       <Drawer.Screen name="Buttons" component={Buttons} />
       <Drawer.Screen name="TodoList" component={TodoList} />
-      <Drawer.Screen name="Setting" component={Setting} options={{drawerItemStyle: {display: 'none'}}} />
     </Drawer.Navigator>
   );
-}
+};
 
-export default function App() {
+function HomeScreen({ navigation }) {
+  const data = [
+    { id: 1, name: 'Item 1', description: 'Description of Item 1' },
+    { id: 2, name: 'Item 2', description: 'Description of Item 2' },
+    { id: 3, name: 'Item 3', description: 'Description of Item 3' },
+  ];
+
   return (
-    <>
+    <View>
+      <FlatList data={data} renderItem={({ item }) => (
+        <TouchableOpacity
+          onPress={() => {
+            navigation.navigate('Details', { item });
+          }}
+        >
+          <View>
+            <Text>{item.name}</Text>
+          </View>
+        </TouchableOpacity>)} />
+    </View>
+  );
+};
+
+function DetailsScreen({ route }) {
+  return (
+    <Stack.Navigator initialRouteName='InnerDetails'>
+      <Stack.Screen
+        name="InnerDetails"
+        component={InnerDetailsScreen}
+        initialParams={route.params}
+      />
+      <Stack.Screen name="Chat" component={Chat} initialParams={route.params}/>
+    </Stack.Navigator>
+  );
+};
+
+function InnerDetailsScreen({ route, navigation }) {
+  const { id, name } = route.params.item;
+
+  return (
+    <TouchableOpacity onPress={() => navigation.navigate('Chat')}>
+      <Text>Details for {name} (ID: {id})</Text>
+    </TouchableOpacity>
+  );
+};
+
+const Home = () => {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="Home" component={HomeScreen} />
+      <Stack.Screen name="Details" component={DetailsScreen} />
+    </Stack.Navigator>
+  );
+};
+
+function App() {
+  return (
     <NavigationContainer>
       <Tab.Navigator
         tabBarOptions={{
-        activeTintColor: 'tomato',
-        inactiveTintColor: 'gray',
+          activeTintColor: 'tomato',
+          inactiveTintColor: 'gray',
         }}
-        screenOptions={{headerShown: false}}
+        // screenOptions={{ headerShown: false }}
       >
-        <Tab.Screen name="Setting" component={Setting} />
-        <Tab.Screen name="Draw" component={MyDrawer} />
+        <Tab.Screen name="Home" component={Home} options={{ tabBarVisible: false }} />
+        <Tab.Screen name="Draw" component={MyDrawer} options={{ tabBarVisible: false }} />
       </Tab.Navigator>
-    </NavigationContainer>
-    {/* <MainStack/> */}
-    </>
+    </NavigationContainer >
   );
-}
+};
 
-// import React from 'react';
-// import { Button, View, Text } from 'react-native';
-// import { createDrawerNavigator } from '@react-navigation/drawer';
-// import { NavigationContainer } from '@react-navigation/native';
-// import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-// import { createNativeStackNavigator } from '@react-navigation/native-stack';
-// const Tab = createBottomTabNavigator();
-// function HomeScreen() {
-//   return (
-//     <Tab.Navigator
-//       tabBarOptions={{
-//       activeTintColor: 'tomato',
-//       inactiveTintColor: 'gray',
-//       }}
-//     >
-//         <Tab.Screen name="TabA" component={TabAScreen} />
-//         <Tab.Screen name="TabB" component={TabBScreen} />
-//     </Tab.Navigator>
-//   );
-// }
-// function NotificationsScreen({ navigation }) {
-//   return (
-//     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center'}}>
-//       <Text>No New Notifications!</Text>
-//       <Button 
-//       onPress={() => navigation.goBack()}
-//       title="Go back home"
-//       />
-//     </View>
-//   );
-// }
-// const Stack = createNativeStackNavigator();
-// function TabAScreen() {
-//   return (
-//     <Stack.Navigator useLegacyImplementation>
-//       <Stack.Screen name="TabA Home" component={TabADetailsScreen} />
-//       <Stack.Screen name="TabA Details" component={Details} />
-//     </Stack.Navigator>
-//   );
-// }
-// function TabADetailsScreen({navigation}) {
-//   return (
-//     <View style={{ flex: 1, justifyContent: 'center',  alignItems: 'center' }}>
-//       <Text>
-//         Welcome to TabA page!
-//       </Text>
-//       <Button 
-//       onPress={() => navigation.navigate('TabA Details')}
-//       title="Go to TabA Details"
-//       />
-//     </View>
-//   );
-// }
-// function Details() {
-//   return (
-//     <View style={{ flex: 1, justifyContent: 'center',  alignItems: 'center' }}>
-//       <Text>
-//         TabA Details here!
-//       </Text>
-//     </View>
-//   );
-// }
-// function TabBScreen() {
-//   return (
-//     <View>
-//       <Text style={{textAlign: 'center', marginTop: 300}}>
-//         Welcome to TabB page!
-//       </Text>
-//     </View>
-//   );
-// }
-// const Drawer = createDrawerNavigator();
-// export default function App() {
-//   return (
-//     <NavigationContainer>
-//       <Drawer.Navigator initialRouteName="Home">
-//         <Drawer.Screen name="Home" component={HomeScreen} />
-//         <Drawer.Screen name="Notifications" component={NotificationsScreen} />
-//       </Drawer.Navigator>
-//     </NavigationContainer>
-//   )
-// }
+export default App;
